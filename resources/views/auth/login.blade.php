@@ -15,10 +15,23 @@
         background: white;
         border-radius: 24px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        padding: 48px;
+        padding: 40px 18px 28px 18px;
         width: 100%;
         max-width: 440px;
         animation: fadeInUp 0.6s ease;
+    }
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 18px 4vw 18px 4vw;
+            border-radius: 14px;
+            max-width: 98vw;
+        }
+        .login-card h1 {
+            font-size: 1.5rem;
+        }
+        .login-card p, .login-card label, .login-card input, .login-card button {
+            font-size: 1rem;
+        }
     }
     
     @keyframes fadeInUp {

@@ -147,26 +147,22 @@
                 <!-- Logo -->
                 <div class="flex items-center gap-3">
                     <span class="text-3xl">📚</span>
-                    <a href="{{ route('mahasiswa.dashboard') }}" class="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    <a href="{{ Auth::user()->role === 'dosen' ? route('dosen.dashboard') : route('mahasiswa.dashboard') }}" class="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                         EduDeadline
                     </a>
                 </div>
-                
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="{{ route('mahasiswa.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">
-                        🏠 Dashboard
-                    </a>
-                    <a href="{{ route('mahasiswa.per-mk') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">
-                        📚 Per MK
-                    </a>
-                    <a href="{{ route('mahasiswa.kalender') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">
-                        📅 Kalender
-                    </a>
-                    <a href="{{ route('mahasiswa.skripsi') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">
-                        📝 Skripsi
-                    </a>
-                    
+                    @if(Auth::user()->role === 'dosen')
+                        <a href="{{ route('dosen.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">🏠 Dashboard</a>
+                        <a href="#" class="text-gray-700 hover:text-purple-600 font-medium transition">📢 Reminder</a>
+                        <a href="#" class="text-gray-700 hover:text-purple-600 font-medium transition">📊 Laporan</a>
+                    @else
+                        <a href="{{ route('mahasiswa.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">🏠 Dashboard</a>
+                        <a href="{{ route('mahasiswa.per-mk') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📚 Per MK</a>
+                        <a href="{{ route('mahasiswa.kalender') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📅 Kalender</a>
+                        <a href="{{ route('mahasiswa.skripsi') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📝 Skripsi</a>
+                    @endif
                     <!-- User Dropdown -->
                     <div class="relative group">
                         <button class="flex items-center gap-2 text-gray-700 hover:text-purple-600 font-medium">
@@ -177,14 +173,11 @@
                             <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 rounded-t-lg">Profile</a>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-lg">
-                                    Logout
-                                </button>
+                                <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-lg">Logout</button>
                             </form>
                         </div>
                     </div>
                 </div>
-                
                 <!-- Mobile Menu Button -->
                 <button class="md:hidden p-2" onclick="toggleMobileMenu()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,18 +186,21 @@
                 </button>
             </div>
         </div>
-        
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
-            <a href="{{ route('mahasiswa.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">🏠 Dashboard</a>
-            <a href="{{ route('mahasiswa.per-mk') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📚 Per MK</a>
-            <a href="{{ route('mahasiswa.kalender') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📅 Kalender</a>
-            <a href="{{ route('mahasiswa.skripsi') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📝 Skripsi</a>
+            @if(Auth::user()->role === 'dosen')
+                <a href="{{ route('dosen.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">🏠 Dashboard</a>
+                <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📢 Reminder</a>
+                <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📊 Laporan</a>
+            @else
+                <a href="{{ route('mahasiswa.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">🏠 Dashboard</a>
+                <a href="{{ route('mahasiswa.per-mk') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📚 Per MK</a>
+                <a href="{{ route('mahasiswa.kalender') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📅 Kalender</a>
+                <a href="{{ route('mahasiswa.skripsi') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📝 Skripsi</a>
+            @endif
             <form action="{{ route('logout') }}" method="POST" class="border-t">
                 @csrf
-                <button type="submit" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50">
-                    Logout
-                </button>
+                <button type="submit" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50">Logout</button>
             </form>
         </div>
     </nav>
