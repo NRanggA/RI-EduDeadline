@@ -9,6 +9,9 @@
     <!-- Tailwind CSS CDN (Production: compile dengan Vite) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <style>
         * {
@@ -162,6 +165,7 @@
                         <a href="{{ route('mahasiswa.per-mk') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📚 Per MK</a>
                         <a href="{{ route('mahasiswa.kalender') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📅 Kalender</a>
                         <a href="{{ route('mahasiswa.skripsi') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📝 Skripsi</a>
+                        <a href="{{ route('mahasiswa.timeline') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">⏱️ Timeline</a>
                     @endif
                     <!-- User Dropdown -->
                     <div class="relative group">
@@ -197,6 +201,7 @@
                 <a href="{{ route('mahasiswa.per-mk') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📚 Per MK</a>
                 <a href="{{ route('mahasiswa.kalender') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📅 Kalender</a>
                 <a href="{{ route('mahasiswa.skripsi') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📝 Skripsi</a>
+                <a href="{{ route('mahasiswa.timeline') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">⏱️ Timeline</a>
             @endif
             <form action="{{ route('logout') }}" method="POST" class="border-t">
                 @csrf
