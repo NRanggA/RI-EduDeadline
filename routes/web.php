@@ -13,11 +13,20 @@ use App\Http\Controllers\DosenController;
 |--------------------------------------------------------------------------
 */
 
+// General Auth Routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Dosen-specific Auth Routes
+Route::prefix('dosen')->group(function () {
+    Route::get('/login', [AuthController::class, 'showDosenLogin'])->name('dosen.login');
+    Route::post('/login', [AuthController::class, 'dosenLogin'])->name('dosen.login.post');
+    Route::get('/register', [AuthController::class, 'showDosenRegister'])->name('dosen.register');
+    Route::post('/register', [AuthController::class, 'dosenRegister'])->name('dosen.register.post');
+});
 
 /*
 |--------------------------------------------------------------------------

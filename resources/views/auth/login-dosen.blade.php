@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login')
+@section('title', 'Login Dosen')
 
 @section('styles')
 <style>
@@ -9,6 +9,7 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
     .login-card {
@@ -20,6 +21,7 @@
         max-width: 440px;
         animation: fadeInUp 0.6s ease;
     }
+    
     @media (max-width: 480px) {
         .login-card {
             padding: 18px 4vw 18px 4vw;
@@ -115,6 +117,17 @@
         color: #999;
         font-size: 14px;
     }
+    
+    .dosen-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 8px;
+    }
 </style>
 @endsection
 
@@ -122,11 +135,12 @@
 <div class="login-card">
     <!-- Logo & Title -->
     <div class="text-center mb-10">
-        <div class="text-6xl mb-4">📚</div>
+        <div class="text-6xl mb-4">👨‍🏫</div>
         <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">
             EduDeadline
         </h1>
-        <p class="text-gray-600">Kelola deadline tugas dengan mudah</p>
+        <p class="text-gray-600">Portal Dosen</p>
+        <span class="dosen-badge">Akses Khusus Pengajar</span>
     </div>
     
     <!-- Error Messages -->
@@ -135,9 +149,16 @@
         <p class="text-red-700 font-medium">{{ $errors->first() }}</p>
     </div>
     @endif
+
+    <!-- Success Messages -->
+    @if (session('success'))
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg">
+        <p class="text-green-700 font-medium">{{ session('success') }}</p>
+    </div>
+    @endif
     
     <!-- Login Form -->
-    <form action="{{ route('login.post') }}" method="POST">
+    <form action="{{ route('dosen.login.post') }}" method="POST">
         @csrf
         
         <div class="input-group">
@@ -145,7 +166,7 @@
             <input 
                 type="text" 
                 name="email" 
-                placeholder="Email atau NIM" 
+                placeholder="Email atau NIP" 
                 value="{{ old('email') }}"
                 required
                 autofocus
@@ -185,13 +206,13 @@
     <div class="text-center space-y-3">
         <p class="text-gray-600 text-sm">
             Belum punya akun? 
-            <a href="{{ route('register') }}" class="text-purple-600 hover:text-purple-700 font-semibold">
-                Daftar Sekarang
+            <a href="{{ route('dosen.register') }}" class="text-purple-600 hover:text-purple-700 font-semibold">
+                Daftar Sebagai Dosen
             </a>
         </p>
-        <a href="{{ route('dosen.login') }}" class="text-purple-600 hover:text-purple-700 font-medium text-sm inline-flex items-center gap-2">
-            <span>👨‍🏫</span>
-            <span>Masuk sebagai Dosen</span>
+        <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-700 font-medium text-sm inline-flex items-center gap-2">
+            <span>🎓</span>
+            <span>Masuk sebagai Mahasiswa</span>
             <span>→</span>
         </a>
     </div>
