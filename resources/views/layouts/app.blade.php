@@ -175,7 +175,11 @@
                             <span>{{ Auth::user()->name }}</span>
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 rounded-t-lg">Profile</a>
+                            @if(Auth::user()->role === 'dosen')
+                                <a href="{{ route('dosen.profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 rounded-t-lg">Profile</a>
+                            @else
+                                <a href="{{ route('mahasiswa.profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 rounded-t-lg">Profile</a>
+                            @endif
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-lg">Logout</button>
