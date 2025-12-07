@@ -24,8 +24,23 @@ class DosenController extends Controller
 
     public function sendReminder(Request $request)
     {
-        // TODO: Implementasi send reminder
-        return back()->with('success', 'Reminder berhasil dikirim');
+        $validated = $request->validate([
+            'recipient' => 'required|array|min:1',
+            'recipient.*' => 'in:semua_mahasiswa,belum_mengumpulkan,terlambat',
+            'waktu_pengingat' => 'required|string|max:255',
+            'template_pesan' => 'required|string|max:1000',
+        ], [
+            'recipient.required' => 'Pilih setidaknya satu penerima reminder',
+            'recipient.min' => 'Pilih setidaknya satu penerima reminder',
+            'waktu_pengingat.required' => 'Waktu pengingat harus diisi',
+            'template_pesan.required' => 'Template pesan harus diisi',
+        ]);
+
+        // TODO: Implementasi send reminder logic
+        // - Simpan ke database
+        // - Kirim notifikasi ke mahasiswa yang dituju
+
+        return back()->with('success', 'Reminder berhasil diatur!');
     }
 
     public function laporan()

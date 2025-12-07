@@ -158,8 +158,8 @@
                 <div class="hidden md:flex items-center gap-6">
                     @if(Auth::user()->role === 'dosen')
                         <a href="{{ route('dosen.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">🏠 Dashboard</a>
-                        <a href="#" class="text-gray-700 hover:text-purple-600 font-medium transition">📢 Reminder</a>
-                        <a href="#" class="text-gray-700 hover:text-purple-600 font-medium transition">📊 Laporan</a>
+                        <a href="{{ route('dosen.reminder') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📢 Reminder</a>
+                        <a href="{{ route('dosen.laporan') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📊 Laporan</a>
                     @else
                         <a href="{{ route('mahasiswa.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">🏠 Dashboard</a>
                         <a href="{{ route('mahasiswa.per-mk') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📚 Per MK</a>
@@ -199,8 +199,8 @@
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
             @if(Auth::user()->role === 'dosen')
                 <a href="{{ route('dosen.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">🏠 Dashboard</a>
-                <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📢 Reminder</a>
-                <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📊 Laporan</a>
+                <a href="{{ route('dosen.reminder') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📢 Reminder</a>
+                <a href="{{ route('dosen.laporan') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📊 Laporan</a>
             @else
                 <a href="{{ route('mahasiswa.dashboard') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">🏠 Dashboard</a>
                 <a href="{{ route('mahasiswa.per-mk') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📚 Per MK</a>
