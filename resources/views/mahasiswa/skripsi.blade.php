@@ -60,6 +60,10 @@
 
         <!-- Actions Section -->
         <div class="space-y-2">
+            <a href="{{ route('mahasiswa.focus-mode') }}" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2 block">
+                <span class="text-lg">🎯</span>
+                <span>Focus Mode</span>
+            </a>
             <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-2">
                 <span class="material-icons text-sm">upload</span>
                 <span>Upload Bab Terbaru</span>

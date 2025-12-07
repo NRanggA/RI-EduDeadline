@@ -166,6 +166,7 @@
                         <a href="{{ route('mahasiswa.kalender') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📅 Kalender</a>
                         <a href="{{ route('mahasiswa.skripsi') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">📝 Skripsi</a>
                         <a href="{{ route('mahasiswa.timeline') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">⏱️ Timeline</a>
+                        <a href="{{ route('mahasiswa.focus-mode') }}" class="text-gray-700 hover:text-purple-600 font-medium transition">🎯 Focus Mode</a>
                     @endif
                     <!-- User Dropdown -->
                     <div class="relative group">
@@ -202,6 +203,7 @@
                 <a href="{{ route('mahasiswa.kalender') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📅 Kalender</a>
                 <a href="{{ route('mahasiswa.skripsi') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">📝 Skripsi</a>
                 <a href="{{ route('mahasiswa.timeline') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">⏱️ Timeline</a>
+                <a href="{{ route('mahasiswa.focus-mode') }}" class="block px-4 py-3 text-gray-700 hover:bg-purple-50">🎯 Focus Mode</a>
             @endif
             <form action="{{ route('logout') }}" method="POST" class="border-t">
                 @csrf
