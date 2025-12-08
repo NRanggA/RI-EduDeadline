@@ -6,29 +6,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Event extends Model
+class TaskCompletion extends Model
 {
     use HasFactory;
 
+    protected $table = 'task_completions';
+
     protected $fillable = [
+        'task_id',
         'user_id',
-        'title',
-        'description',
-        'start_date',
-        'end_date',
-        'color',
-        'type',
+        'status',
+        'completed_at',
+        'submission_notes',
+        'submission_file',
     ];
 
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+        'completed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the event
+     * Get the task associated with this completion
+     */
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class);
+    }
+
+    /**
+     * Get the user who submitted this task
      */
     public function user(): BelongsTo
     {

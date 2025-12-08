@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Task;
+use App\Models\Course;
+use App\Models\TaskCompletion;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -12,17 +16,66 @@ class DashboardController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // TODO: Nanti ambil dari database
-        $urgentCount = 3;
-        $totalTasks = 12;
-        $completedThisWeek = 8;
+        $user = Auth::user();
+
+        // Get all course IDs the user is enrolled in
+        $courseIds = $user->courses->pluck('id');
+
+        // Get all tasks for enrolled courses
+        $allTasks = Task::whereIn('course_id', $courseIds)
+            ->with('course', 'creator')
+            ->where('status', '!=', 'completed')
+            ->get();
+
+        // Count urgent tasks (priority = 'urgent' AND not completed)
+        $urgentCount = $allTasks->where('priority', 'urgent')->count();
+
+        // Get total active tasks (not completed)
+        $totalTasks = $allTasks->count();
+
+        // Get tasks completed this week (include submitted and approved)
+        $weekAgo = Carbon::now()->subWeek();
+        $completedThisWeek = TaskCompletion::where('user_id', $user->id)
+            ->whereIn('status', ['submitted', 'approved'])
+            ->where('updated_at', '>=', $weekAgo)
+            ->count();
+
+        // Apply filters
+        $filteredTasks = $allTasks;
+
+        // Filter by priority
+        if ($request->has('priority') && $request->get('priority') !== '') {
+            $filteredTasks = $filteredTasks->where('priority', $request->get('priority'));
+        }
+
+        // Filter by date range
+        $range = $request->get('range', 'month');
+        if ($range === '3days') {
+            // Next 3 days
+            $filteredTasks = $filteredTasks->filter(function ($task) {
+                return $task->deadline >= now() && $task->deadline <= now()->addDays(3);
+            });
+        } elseif ($range === 'month') {
+            // Next 30 days
+            $filteredTasks = $filteredTasks->filter(function ($task) {
+                return $task->deadline >= now() && $task->deadline <= now()->addDays(30);
+            });
+        }
+        // else: 'all' - show all tasks
+
+        // Sort by priority (urgent first) then by deadline
+        $upcomingTasks = $filteredTasks->sortBy(function ($task) {
+            $priorityOrder = ['urgent' => 0, 'normal' => 1, 'rendah' => 2];
+            return [$priorityOrder[$task->priority] ?? 999, $task->deadline];
+        })->take(10); // Limit to 10 tasks for dashboard
 
         return view('mahasiswa.dashboard', compact(
             'urgentCount',
             'totalTasks',
-            'completedThisWeek'
+            'completedThisWeek',
+            'upcomingTasks'
         ));
     }
 

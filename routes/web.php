@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DosenController;
 
 /*
@@ -37,8 +38,10 @@ Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
     // Screen 2: Dashboard (HMW 1 - Emphasis)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('mahasiswa.dashboard');
 
-    // Screen 3: Detail Tugas
+    // Screen 3: Detail Tugas - Custom routes untuk detail, complete, update
     Route::get('/tugas/{id}', [TaskController::class, 'show'])->name('mahasiswa.tugas.detail');
+    Route::post('/tugas/{id}/complete', [TaskController::class, 'complete'])->name('mahasiswa.tugas.complete');
+    Route::put('/tugas/{id}', [TaskController::class, 'update'])->name('mahasiswa.tugas.update');
 
     // Screen 4: Per Mata Kuliah (HMW 4 - Proximity)
     Route::get('/per-mk', [TaskController::class, 'perMataKuliah'])->name('mahasiswa.per-mk');
@@ -48,8 +51,10 @@ Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
 
     // Screen 6: Kalender (HMW 3 - Balance)
     Route::get('/kalender', [CalendarController::class, 'index'])->name('mahasiswa.kalender');
-
-    // Screen 7: Tambah Event
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('mahasiswa.calendar');
+    Route::post('/event', [CalendarController::class, 'storeEvent'])->name('mahasiswa.event.store');
+    Route::post('/activity', [ActivityController::class, 'store'])->name('mahasiswa.activity.store');
+    Route::post('/activity/force', [ActivityController::class, 'store'])->name('mahasiswa.activity.store.force');
     Route::get('/tambah-event', [CalendarController::class, 'create'])->name('mahasiswa.tambah-event');
     Route::post('/tambah-event', [CalendarController::class, 'store'])->name('mahasiswa.tambah-event.store');
 
@@ -62,8 +67,9 @@ Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
     // Profile
     Route::get('/profile', [DashboardController::class, 'profile'])->name('mahasiswa.profile');
 
-    // CRUD Tugas
-    Route::resource('tugas', TaskController::class)->except(['show']);
+    // CRUD Tugas - Store dan Delete
+    Route::post('/tugas', [TaskController::class, 'store'])->name('mahasiswa.tugas.store');
+    Route::delete('/tugas/{id}', [TaskController::class, 'destroy'])->name('mahasiswa.tugas.destroy');
 });
 
 /*

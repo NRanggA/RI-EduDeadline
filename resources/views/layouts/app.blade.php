@@ -219,6 +219,37 @@
     
     <!-- Main Content -->
     <main class="app-container py-8">
+        <!-- Flash Messages -->
+        @if($message = Session::get('success'))
+        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg flex items-center justify-between animate-fade-in">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">✅</span>
+                <span>{{ $message }}</span>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" class="text-green-700 font-bold">×</button>
+        </div>
+        @endif
+
+        @if($message = Session::get('error'))
+        <div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg flex items-center justify-between animate-fade-in">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">❌</span>
+                <span>{{ $message }}</span>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" class="text-red-700 font-bold">×</button>
+        </div>
+        @endif
+
+        @if($message = Session::get('warning'))
+        <div class="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-lg flex items-center justify-between animate-fade-in">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">⚠️</span>
+                <span>{{ $message }}</span>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" class="text-yellow-700 font-bold">×</button>
+        </div>
+        @endif
+
         @yield('content')
     </main>
     
