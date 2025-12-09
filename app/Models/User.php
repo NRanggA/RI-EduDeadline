@@ -58,4 +58,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function thesis(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Thesis::class, 'user_id');
+    }
+
+    public function advisedTheses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Thesis::class, 'advisor_id');
+    }
+
+    public function coAdvisedTheses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Thesis::class, 'co_advisor_id');
+    }
 }

@@ -16,19 +16,24 @@
         <!-- Task Info Section -->
         <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 space-y-4 border border-purple-200">
             <div class="text-center">
-                <p class="text-gray-600 text-sm mb-2">Tugas Hari Ini:</p>
-                <h2 class="text-2xl font-bold text-gray-900">Revisi BAB 3 Skripsi</h2>
+                <p class="text-gray-600 text-sm mb-2">Sedang Mengerjakan:</p>
+                <h2 class="text-2xl font-bold text-gray-900">{{ $thesis->title ?? 'Skripsi Saya' }}</h2>
+                <p class="text-sm text-gray-600 mt-2">Status: <strong>{{ ucfirst($thesis->status) }}</strong></p>
             </div>
             
             <!-- Timer Display -->
             <div class="text-center py-4">
                 <div class="text-5xl font-bold text-purple-600 font-mono" id="timerDisplay">0:00:00</div>
+                <p class="text-xs text-gray-500 mt-2" id="sessionTime"></p>
             </div>
             
             <!-- Deadline -->
-            <div class="text-center">
-                <p class="text-gray-600 text-sm">Deadline: Hari ini, 17:00</p>
-            </div>
+            @if($thesis->defense_deadline)
+                <div class="text-center">
+                    <p class="text-gray-600 text-sm">Deadline: {{ $thesis->defense_deadline->format('d M Y') }}</p>
+                    <p class="text-xs text-gray-500">{{ $thesis->defense_deadline->diffForHumans() }}</p>
+                </div>
+            @endif
         </div>
         
         <!-- Buttons Section -->
@@ -42,6 +47,12 @@
             <a href="{{ route('mahasiswa.skripsi') }}" class="block w-full py-4 bg-gray-200 hover:bg-gray-300 text-gray-900 font-bold text-lg rounded-xl transition text-center">
                 Keluar Focus
             </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="space-y-2 text-center text-sm">
+            <p class="text-gray-600">📊 <span id="totalTime">0 jam 0 menit</span></p>
+            <p class="text-gray-600">✅ Tetap fokus dan selesaikan skripsi Anda</p>
         </div>
         
     </div>
@@ -67,6 +78,21 @@
         
         const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         document.getElementById('timerDisplay').textContent = display;
+        
+        // Update total time
+        const totalMinutes = Math.floor(seconds / 60);
+        const totalHours = Math.floor(totalMinutes / 60);
+        const remainingMinutes = totalMinutes % 60;
+        
+        if (totalHours > 0) {
+            document.getElementById('totalTime').textContent = `${totalHours} jam ${remainingMinutes} menit`;
+        } else {
+            document.getElementById('totalTime').textContent = `${remainingMinutes} menit`;
+        }
+        
+        // Update session time
+        const now = new Date().toLocaleTimeString('id-ID');
+        document.getElementById('sessionTime').textContent = `Session: ${now}`;
     }
     
     function toggleTimer() {

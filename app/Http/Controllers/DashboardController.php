@@ -79,19 +79,16 @@ class DashboardController extends Controller
         ));
     }
 
-    public function skripsi()
-    {
-        return view('mahasiswa.skripsi');
-    }
-
-    public function timeline()
-    {
-        return view('mahasiswa.timeline');
-    }
-
     public function focusMode()
     {
-        return view('mahasiswa.focus-mode');
+        $user = Auth::user();
+        $thesis = $user->thesis;
+
+        if (!$thesis) {
+            abort(404, 'Thesis not found');
+        }
+
+        return view('mahasiswa.focus-mode', compact('thesis'));
     }
 
     public function uploadProgress()

@@ -7,6 +7,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DosenController;
+use App\Http\Controllers\SkripsiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,8 +60,15 @@ Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
     Route::post('/tambah-event', [CalendarController::class, 'store'])->name('mahasiswa.tambah-event.store');
 
     // Screen 12-15: Skripsi (HMW 5 - White Space)
-    Route::get('/skripsi', [DashboardController::class, 'skripsi'])->name('mahasiswa.skripsi');
-    Route::get('/timeline', [DashboardController::class, 'timeline'])->name('mahasiswa.timeline');
+    Route::get('/skripsi', [SkripsiController::class, 'index'])->name('mahasiswa.skripsi');
+    Route::get('/skripsi/upload', [SkripsiController::class, 'showUploadForm'])->name('mahasiswa.upload-bab');
+    Route::post('/skripsi/upload', [SkripsiController::class, 'uploadChapter'])->name('mahasiswa.upload-chapter');
+    Route::get('/skripsi/feedback', [SkripsiController::class, 'showFeedback'])->name('mahasiswa.feedback');
+    Route::get('/skripsi/schedule', [SkripsiController::class, 'showSchedule'])->name('mahasiswa.schedule');
+    Route::post('/skripsi/feedback/{feedbackId}/resolve', [SkripsiController::class, 'resolveFeedback'])->name('mahasiswa.feedback.resolve');
+    Route::get('/skripsi/chapter/{submissionId}/download', [SkripsiController::class, 'downloadChapter'])->name('mahasiswa.chapter.download');
+
+    Route::get('/timeline', [SkripsiController::class, 'timeline'])->name('mahasiswa.timeline');
     Route::get('/focus-mode', [DashboardController::class, 'focusMode'])->name('mahasiswa.focus-mode');
     Route::get('/upload-progress', [DashboardController::class, 'uploadProgress'])->name('mahasiswa.upload-progress');
 
