@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Task;
 use App\Models\Course;
 use App\Models\Activity;
+use App\Models\Reminder;
 
 class User extends Authenticatable
 {
@@ -72,5 +73,17 @@ class User extends Authenticatable
     public function coAdvisedTheses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Thesis::class, 'co_advisor_id');
+    }
+
+    // Reminder relationships
+    public function sentReminders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Reminder::class, 'lecturer_id');
+    }
+
+    public function receivedReminders(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Reminder::class, 'reminder_recipients', 'user_id', 'reminder_id')
+            ->withTimestamps();
     }
 }

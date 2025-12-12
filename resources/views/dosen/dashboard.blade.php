@@ -138,61 +138,111 @@
 
 @section('content')
 <div class="container-dosen">
-    <!-- Task Card -->
-    <div class="task-card">
-        <div class="task-header">
-            <div class="task-title">Tugas : UAS Akhir Semester</div>
-            <div class="task-deadline">Deadline : 22 Okt, 23:59</div>
-        </div>
-
-    <!-- Table -->
-    <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8;">
-        <thead>
-            <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 700; width: 40%; border: none;">Nama</th>
-                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 700; width: 35%; border: none;">Status</th>
-                <th style="padding: 12px 16px; text-align: right; font-size: 13px; font-weight: 700; width: 25%; border: none;">Waktu</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom: 1px solid #e8e8e8;">
-                <td style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; width: 40%;">Ahmad Fauzi</td>
-                <td style="padding: 12px 16px; text-align: center; width: 35%;"><span class="status-badge status-tepat">✓ Tepat</span></td>
-                <td style="padding: 12px 16px; text-align: right; color: #666; font-size: 12px; width: 25%;">09:30</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #e8e8e8;">
-                <td style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; width: 40%;">Budi Santoso</td>
-                <td style="padding: 12px 16px; text-align: center; width: 35%;"><span class="status-badge status-bakun">⏱ Bakun</span></td>
-                <td style="padding: 12px 16px; text-align: right; color: #666; font-size: 12px; width: 25%;">-</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #e8e8e8;">
-                <td style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; width: 40%;">Citra Dewi</td>
-                <td style="padding: 12px 16px; text-align: center; width: 35%;"><span class="status-badge status-telat">✕ Telat</span></td>
-                <td style="padding: 12px 16px; text-align: right; color: #666; font-size: 12px; width: 25%;">23:45</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; width: 40%;">Dewi Lestari</td>
-                <td style="padding: 12px 16px; text-align: center; width: 35%;"><span class="status-badge status-tepat">✓ Tepat</span></td>
-                <td style="padding: 12px 16px; text-align: right; color: #666; font-size: 12px; width: 25%;">08:15</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Page Header -->
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 28px; font-weight: 700; color: #333; margin: 0;">Dashboard Dosen</h1>
+        <p style="font-size: 14px; color: #999; margin-top: 4px;">Selamat datang, {{ Auth::user()->name }}</p>
     </div>
 
-    <!-- Statistics -->
+    <!-- Statistics Summary -->
     <div class="statistics-box">
         <div class="stat-item">
-            <div class="stat-number">2 ✓</div>
-            <div class="stat-label">Tepat</div>
+            <div class="stat-number">{{ $statistics['total_courses'] }}</div>
+            <div class="stat-label">Mata Kuliah</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">1 ⏱</div>
-            <div class="stat-label">Bakun</div>
+            <div class="stat-number">{{ $statistics['total_tasks'] }}</div>
+            <div class="stat-label">Total Tugas</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">1 ✕</div>
-            <div class="stat-label">Telat</div>
+            <div class="stat-number">{{ $statistics['overdue_tasks'] }}</div>
+            <div class="stat-label">Overdue</div>
         </div>
+    </div>
+
+    @if($courses->isEmpty())
+        <div style="text-align: center; padding: 40px 20px; color: #999;">
+            <p>Anda belum mengampu mata kuliah apapun</p>
+        </div>
+    @else
+        <!-- Tasks by Course -->
+        @foreach($task_stats as $stat)
+            <div class="task-card">
+                <div class="task-header">
+                    <div class="task-title">{{ $stat['task']->title }}</div>
+                    <div class="task-deadline">
+                        Mata Kuliah: {{ $stat['task']->course->name }} | 
+                        Deadline: {{ $stat['task']->deadline->format('d M, H:i') }}
+                    </div>
+                </div>
+
+                <!-- Submission Statistics -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; padding: 12px 0; border-top: 1px solid #e8e8e8;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 18px; font-weight: 700; color: #667eea;">{{ $stat['submitted'] }}</div>
+                        <div style="font-size: 12px; color: #999;">Dikumpulkan</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 18px; font-weight: 700; color: #ff6b6b;">{{ $stat['pending'] }}</div>
+                        <div style="font-size: 12px; color: #999;">Belum Kumpul</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 18px; font-weight: 700; color: #2ed573;">{{ $stat['approved'] }}</div>
+                        <div style="font-size: 12px; color: #999;">Disetujui</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 18px; font-weight: 700; color: #ffa502;">{{ $stat['rejected'] }}</div>
+                        <div style="font-size: 12px; color: #999;">Ditolak</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div style="background: #f0f0f0; border-radius: 8px; height: 8px; margin-bottom: 12px; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, #2ed573 0%, #667eea 100%); height: 100%; width: {{ ($stat['submitted'] / $stat['total_enrolled']) * 100 }}%;"></div>
+                </div>
+
+                <!-- Submission List -->
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f9f9f9; border-bottom: 1px solid #e8e8e8;">
+                                <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 700; color: #666;">Nama</th>
+                                <th style="padding: 10px 12px; text-align: center; font-size: 12px; font-weight: 700; color: #666;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($stat['task']->completions as $completion)
+                                <tr style="border-bottom: 1px solid #f0f0f0;">
+                                    <td style="padding: 10px 12px; text-align: left; font-size: 12px; color: #333;">{{ $completion->user->name }}</td>
+                                    <td style="padding: 10px 12px; text-align: center;">
+                                        @if($completion->status === 'approved')
+                                            <span class="status-badge status-tepat">✓ Disetujui</span>
+                                        @elseif($completion->status === 'rejected')
+                                            <span class="status-badge status-telat">✕ Ditolak</span>
+                                        @else
+                                            <span class="status-badge status-bakun">⏱ {{ ucfirst($completion->status) }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2" style="padding: 20px 12px; text-align: center; color: #999; font-size: 12px;">
+                                        Belum ada pengumpulan
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endforeach
+    @endif
+
+    <!-- Quick Action Button -->
+    <div style="margin-top: 24px; margin-bottom: 40px;">
+        <a href="{{ route('dosen.reminder') }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.2s;">
+            ➜ Atur Reminder
+        </a>
     </div>
 </div>
 @endsection

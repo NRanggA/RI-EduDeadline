@@ -237,61 +237,189 @@
     </div>
     @endif
 
-    <!-- Reminder Form -->
-    <form action="{{ route('dosen.reminder.send') }}" method="POST">
-        @csrf
-
-        <!-- Section 1: Kirim reminder ke -->
-        <div class="reminder-card">
-            <label class="reminder-label">Kirim reminder ke:</label>
-            <div class="checkbox-group">
-                <label class="checkbox-item">
-                    <input type="checkbox" name="recipient" value="semua_mahasiswa">
-                    <span class="checkbox-label">Semua Mahasiswa</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="recipient" value="belum_mengumpulkan">
-                    <span class="checkbox-label">Yang Belum Mengumpulkan</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="recipient" value="terlambat">
-                    <span class="checkbox-label">Yang Terlambat</span>
-                </label>
-            </div>
+    @if($courses->isEmpty())
+        <div style="text-align: center; padding: 40px 20px; color: #999;">
+            <p>Anda belum mengampu mata kuliah apapun atau tidak ada tugas yang dibuat</p>
         </div>
+    @else
+        <!-- Reminder Form -->
+        <form action="{{ route('dosen.reminder.send') }}" method="POST">
+            @csrf
 
-        <!-- Section 2: Waktu Pengingat -->
-        <div class="reminder-card">
-            <label class="reminder-label">Waktu Pengingat:</label>
-            <div class="input-group">
-                <input 
-                    type="text" 
-                    name="waktu_pengingat" 
-                    class="input-field" 
-                    placeholder="1 hari sebelum deadline"
-                    value="{{ old('waktu_pengingat') }}"
-                    required
-                >
+            <!-- Section 1: Pilih Mata Kuliah dan Tugas -->
+            <div class="reminder-card">
+                <label class="reminder-label">Pilih Mata Kuliah:</label>
+                <div class="input-group">
+                    <select name="course_id" class="input-field" required id="course_select">
+                        <option value="">-- Pilih Mata Kuliah --</option>
+                        @foreach($courses as $course)
+                            <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
+                                {{ $course->name }} ({{ $course->code }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @error('course_id')
+                    <span style="color: #ff4757; font-size: 12px;">{{ $message }}</span>
+                @enderror
             </div>
-        </div>
 
-        <!-- Section 3: Template Pesan -->
-        <div class="reminder-card">
-            <label class="reminder-label">Template pesan:</label>
-            <div class="input-group">
-                <textarea 
-                    name="template_pesan" 
-                    class="textarea-field" 
-                    placeholder="Halo, ini pengingat untuk tugas UAS. Deadline 22 Oktober 2025."
-                    required
-                >{{ old('template_pesan', 'Halo, ini pengingat untuk tugas UAS. Deadline 22 Oktober 2025.') }}</textarea>
+            <!-- Task Selection Info -->
+            <div class="reminder-card" id="task_info" style="display: none; background: #f0f9ff; border: 1px solid #667eea;">
+                <label class="reminder-label">Tugas-tugas pada mata kuliah ini:</label>
+                <div id="task_list" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
-        </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn-reminder">
-            Atur Reminder
-        </button>
-    </form>
+            <!-- Section 2: Kirim reminder ke -->
+            <div class="reminder-card">
+                <label class="reminder-label">Kirim reminder ke:</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="radio" name="recipient_type" value="semua_mahasiswa" {{ old('recipient_type') == 'semua_mahasiswa' ? 'checked' : '' }} required>
+                        <span class="checkbox-label">Semua Mahasiswa</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="radio" name="recipient_type" value="belum_mengumpulkan" {{ old('recipient_type') == 'belum_mengumpulkan' ? 'checked' : '' }}>
+                        <span class="checkbox-label">Yang Belum Mengumpulkan</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="radio" name="recipient_type" value="terlambat" {{ old('recipient_type') == 'terlambat' ? 'checked' : '' }}>
+                        <span class="checkbox-label">Yang Terlambat</span>
+                    </label>
+                </div>
+                @error('recipient_type')
+                    <span style="color: #ff4757; font-size: 12px;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Section 3: Judul Reminder -->
+            <div class="reminder-card">
+                <label class="reminder-label">Judul Reminder:</label>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        name="title" 
+                        class="input-field" 
+                        placeholder="Pengingat Pengumpulan Tugas"
+                        value="{{ old('title') }}"
+                        required
+                    >
+                </div>
+                @error('title')
+                    <span style="color: #ff4757; font-size: 12px;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Section 4: Waktu Pengingat -->
+            <div class="reminder-card">
+                <label class="reminder-label">Jadwal Pengingat (opsional):</label>
+                <div class="input-group">
+                    <input 
+                        type="datetime-local" 
+                        name="waktu_pengingat" 
+                        class="input-field" 
+                        placeholder="Kapan reminder dikirim"
+                        value="{{ old('waktu_pengingat') }}"
+                    >
+                </div>
+                <p style="font-size: 12px; color: #999; margin-top: 8px;">Jika kosong, reminder akan dikirim langsung</p>
+                @error('waktu_pengingat')
+                    <span style="color: #ff4757; font-size: 12px;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Section 5: Template Pesan -->
+            <div class="reminder-card">
+                <label class="reminder-label">Template pesan:</label>
+                <div class="input-group">
+                    <textarea 
+                        name="template_pesan" 
+                        class="textarea-field" 
+                        placeholder="Contoh: Halo, ini pengingat untuk tugas yang belum dikumpulkan. Silahkan segera mengumpulkan sebelum deadline."
+                        required
+                    >{{ old('template_pesan') }}</textarea>
+                </div>
+                @error('template_pesan')
+                    <span style="color: #ff4757; font-size: 12px;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-reminder">
+                Kirim Reminder
+            </button>
+        </form>
+
+        <!-- Previous Reminders Section -->
+        @if($previous_reminders->isNotEmpty())
+            <div style="margin-top: 40px; border-top: 2px solid #e8e8e8; padding-top: 24px;">
+                <h2 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 16px;">Riwayat Reminder</h2>
+                
+                @foreach($previous_reminders as $reminder)
+                    <div class="reminder-card" style="background: #f8f9ff;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="font-weight: 700; color: #333; margin-bottom: 4px;">{{ $reminder->title }}</div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                                    Mata Kuliah: <strong>{{ $reminder->course->name }}</strong>
+                                </div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                    Tipe Penerima: 
+                                    @if($reminder->recipient_type === 'all_students')
+                                        Semua Mahasiswa
+                                    @elseif($reminder->recipient_type === 'not_submitted')
+                                        Yang Belum Mengumpulkan
+                                    @else
+                                        Yang Terlambat
+                                    @endif
+                                </div>
+                                <div style="font-size: 11px; color: #999;">
+                                    Dikirim: {{ $reminder->sent_at ? $reminder->sent_at->format('d M Y H:i') : 'Terjadwal' }}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #667eea; font-size: 14px;">
+                                    {{ $reminder->recipients->count() }} Penerima
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    @endif
+
+    <script>
+        // Show task info when course is selected
+        document.getElementById('course_select').addEventListener('change', function() {
+            const courseId = this.value;
+            const taskInfo = document.getElementById('task_info');
+            const taskList = document.getElementById('task_list');
+            
+            if (courseId) {
+                taskInfo.style.display = 'block';
+                // You could fetch tasks dynamically here via AJAX
+                // For now, we'll show available tasks
+                const courseTasks = @json($task_data);
+                const selectedCourseTasks = courseTasks.filter(t => t.course.id == courseId);
+                
+                if (selectedCourseTasks.length > 0) {
+                    taskList.innerHTML = selectedCourseTasks.map(task => `
+                        <div style="padding: 8px 0; border-bottom: 1px solid #e0e7ff;">
+                            <div style="font-weight: 600; font-size: 12px; color: #333;">${task.title}</div>
+                            <div style="font-size: 11px; color: #666; margin-top: 2px;">
+                                Deadline: ${new Date(task.deadline).toLocaleDateString('id-ID')} | 
+                                Dikumpulkan: ${task.submitted}/${task.total_enrolled}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    taskList.innerHTML = '<p style="color: #999; font-size: 12px;">Tidak ada tugas untuk mata kuliah ini</p>';
+                }
+            } else {
+                taskInfo.style.display = 'none';
+            }
+        });
+    </script>
 </div>
 @endsection
