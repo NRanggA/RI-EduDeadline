@@ -21,7 +21,7 @@ class DosenController extends Controller
     public function index()
     {
         $dosen = Auth::user();
-        
+
         // Get all courses taught by this lecturer
         $courses = Course::where('lecturer_id', $dosen->id)
             ->with(['tasks' => function ($query) {
@@ -48,7 +48,7 @@ class DosenController extends Controller
         foreach ($tasks as $task) {
             $completions = $task->completions;
             $enrolled_students = $task->course->students->count();
-            
+
             $task_stats[] = [
                 'task' => $task,
                 'total_enrolled' => $enrolled_students,
@@ -65,7 +65,7 @@ class DosenController extends Controller
     public function reminder()
     {
         $dosen = Auth::user();
-        
+
         // Get all courses taught by this lecturer
         $courses = Course::where('lecturer_id', $dosen->id)
             ->with(['tasks', 'students'])
@@ -84,7 +84,7 @@ class DosenController extends Controller
             foreach ($course->tasks as $task) {
                 $completions = TaskCompletion::where('task_id', $task->id)->get();
                 $enrolled_students = $course->students->count();
-                
+
                 $task_data[] = [
                     'id' => $task->id,
                     'title' => $task->title,
@@ -106,7 +106,7 @@ class DosenController extends Controller
     public function sendReminder(Request $request)
     {
         $dosen = Auth::user();
-        
+
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'recipient_type' => 'required|in:semua_mahasiswa,belum_mengumpulkan,terlambat',
@@ -121,7 +121,7 @@ class DosenController extends Controller
         ]);
 
         $course = Course::findOrFail($validated['course_id']);
-        
+
         // Verify that this lecturer owns this course
         if ($course->lecturer_id !== $dosen->id) {
             return back()->with('error', 'Anda tidak memiliki akses ke kursus ini');
@@ -182,7 +182,7 @@ class DosenController extends Controller
     private function filterStudentsNotSubmitted($students, $courseId)
     {
         $tasks = Task::where('course_id', $courseId)->pluck('id');
-        
+
         return $students->filter(function ($student) use ($tasks) {
             $submitted = TaskCompletion::whereIn('task_id', $tasks)
                 ->where('user_id', $student->id)
@@ -228,19 +228,19 @@ class DosenController extends Controller
     private function getStudentsOverdue($taskId, $courseId)
     {
         $task = Task::findOrFail($taskId);
-        
+
         if ($task->deadline > now()) {
             return collect([]);
         }
 
         $course = Course::findOrFail($courseId);
         $all_students = $course->students;
-        
+
         return $all_students->filter(function ($student) use ($taskId) {
             $completion = TaskCompletion::where('task_id', $taskId)
                 ->where('user_id', $student->id)
                 ->first();
-            
+
             return is_null($completion) || in_array($completion->status, ['pending', 'submitted']);
         });
     }

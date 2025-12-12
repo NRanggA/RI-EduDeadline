@@ -23,7 +23,7 @@ class TestDatabase extends Command
         // TEST 1: GET DOSEN
         $this->info("TEST 1: GET DOSEN");
         $this->line("-----------------------------------");
-        
+
         $dosen = User::where('role', 'dosen')->first();
         if ($dosen) {
             $this->line("✅ Dosen found!");
@@ -39,7 +39,7 @@ class TestDatabase extends Command
         // TEST 2: GET DOSEN'S COURSES
         $this->info("TEST 2: GET DOSEN'S COURSES");
         $this->line("-----------------------------------");
-        
+
         $courses = $dosen->courses()->get();
         $this->line("Total courses: {$courses->count()}");
         foreach ($courses as $course) {
@@ -53,7 +53,7 @@ class TestDatabase extends Command
         // TEST 3: GET TASKS CREATED BY DOSEN
         $this->info("TEST 3: GET TASKS CREATED BY DOSEN");
         $this->line("-----------------------------------");
-        
+
         $tasks = Task::where('created_by', $dosen->id)->get();
         $this->line("Total tasks: {$tasks->count()}");
         foreach ($tasks as $task) {
@@ -71,7 +71,7 @@ class TestDatabase extends Command
         // TEST 4: GET TASK COMPLETIONS
         $this->info("TEST 4: GET TASK COMPLETIONS");
         $this->line("-----------------------------------");
-        
+
         if ($tasks->count() > 0) {
             $task = $tasks->first();
             $completions = $task->completions()->with('user')->get();
@@ -90,7 +90,7 @@ class TestDatabase extends Command
         // TEST 5: GET MAHASISWA
         $this->info("TEST 5: GET MAHASISWA");
         $this->line("-----------------------------------");
-        
+
         $mahasiswa = User::where('role', 'mahasiswa')->get();
         $this->line("Total students: {$mahasiswa->count()}");
         foreach ($mahasiswa as $student) {
@@ -105,7 +105,7 @@ class TestDatabase extends Command
         // TEST 6: GET REMINDERS
         $this->info("TEST 6: GET REMINDERS");
         $this->line("-----------------------------------");
-        
+
         $reminders = $dosen->sentReminders()->with(['course', 'recipients'])->get();
         $this->line("Total reminders sent: {$reminders->count()}");
         foreach ($reminders as $reminder) {
@@ -120,10 +120,10 @@ class TestDatabase extends Command
         // TEST 7: GET COURSE STUDENTS
         $this->info("TEST 7: GET COURSE STUDENTS");
         $this->line("-----------------------------------");
-        
+
         // Re-fetch courses for this dosen
         $courses_for_display = Course::where('lecturer_id', $dosen->id)->get();
-        
+
         if ($courses_for_display->count() > 0) {
             $course = $courses_for_display->first();
             $students = $course->students()->get();
@@ -140,14 +140,14 @@ class TestDatabase extends Command
         // TEST 8: GET STUDENTS NOT SUBMITTED
         $this->info("TEST 8: GET STUDENTS NOT SUBMITTED");
         $this->line("-----------------------------------");
-        
+
         if ($tasks->count() > 0) {
             $task = $tasks->first();
             $submitted = TaskCompletion::where('task_id', $task->id)->pluck('user_id');
             $notSubmitted = $task->course->students()
                 ->whereNotIn('users.id', $submitted)
                 ->get();
-            
+
             $this->line("Task: {$task->title}");
             $this->line("Students not submitted: {$notSubmitted->count()}");
             foreach ($notSubmitted as $student) {
@@ -161,7 +161,7 @@ class TestDatabase extends Command
         // TEST 9: GET REMINDER RECIPIENTS
         $this->info("TEST 9: GET REMINDER RECIPIENTS");
         $this->line("-----------------------------------");
-        
+
         if ($reminders->count() > 0) {
             $reminder = $reminders->first();
             $recipients = $reminder->recipients()->get();
@@ -178,7 +178,7 @@ class TestDatabase extends Command
         // TEST 10: STATISTICS
         $this->info("TEST 10: STATISTICS");
         $this->line("-----------------------------------");
-        
+
         $totalUsers = User::count();
         $totalDosen = User::where('role', 'dosen')->count();
         $totalMahasiswa = User::where('role', 'mahasiswa')->count();
