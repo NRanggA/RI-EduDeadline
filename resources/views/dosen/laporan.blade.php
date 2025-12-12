@@ -311,29 +311,31 @@
 
     <!-- Filter Section -->
     <div class="filter-section">
-        <button class="filter-btn active">Semua Tugas</button>
-        <button class="filter-btn">Bulan Ini</button>
-        <button class="filter-btn">3 Bulan</button>
-        <button class="filter-btn">6 Bulan</button>
+        <form method="GET" action="{{ route('dosen.laporan') }}" id="filterForm" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="submit" name="period" value="all" class="filter-btn @if($period === 'all') active @endif">Semua Tugas</button>
+            <button type="submit" name="period" value="bulan_ini" class="filter-btn @if($period === 'bulan_ini') active @endif">Bulan Ini</button>
+            <button type="submit" name="period" value="tiga_bulan" class="filter-btn @if($period === 'tiga_bulan') active @endif">3 Bulan</button>
+            <button type="submit" name="period" value="enam_bulan" class="filter-btn @if($period === 'enam_bulan') active @endif">6 Bulan</button>
+        </form>
     </div>
 
     <!-- Tingkat Ketepatan Card -->
     <div class="report-card ketepatan-card">
         <div class="ketepatan-title">Tingkat Ketepatan</div>
-        <div class="ketepatan-percentage">78%</div>
+        <div class="ketepatan-percentage">{{ $accuracyRate }}%</div>
         
         <div class="ketepatan-items">
             <div class="ketepatan-item">
                 <span class="ketepatan-label">Tepat Waktu</span>
-                <span class="ketepatan-percentage-value">65%</span>
+                <span class="ketepatan-percentage-value">{{ $breakdown['on_time_percentage'] }}%</span>
             </div>
             <div class="ketepatan-item">
-                <span class="ketepatan-label">Tepat Waktu</span>
-                <span class="ketepatan-percentage-value">22%</span>
+                <span class="ketepatan-label">Terlambat</span>
+                <span class="ketepatan-percentage-value">{{ $breakdown['late_percentage'] }}%</span>
             </div>
             <div class="ketepatan-item">
-                <span class="ketepatan-label">Tepat Waktu</span>
-                <span class="ketepatan-percentage-value">10%</span>
+                <span class="ketepatan-label">Tidak Dikumpulkan</span>
+                <span class="ketepatan-percentage-value">{{ $breakdown['not_submitted_percentage'] }}%</span>
             </div>
         </div>
     </div>
@@ -350,23 +352,17 @@
             </div>
 
             <div class="grafik-container">
-                <!-- Sep Bar -->
-                <div class="bar-group">
-                    <div class="bar" style="height: 120px;"></div>
-                    <div class="bar-label">Sep</div>
-                </div>
-
-                <!-- Okt Bar -->
-                <div class="bar-group">
-                    <div class="bar" style="height: 160px;"></div>
-                    <div class="bar-label">Okt</div>
-                </div>
-
-                <!-- Nov Bar -->
-                <div class="bar-group">
-                    <div class="bar" style="height: 140px;"></div>
-                    <div class="bar-label">Nov</div>
-                </div>
+                @forelse($monthlyData as $data)
+                    <!-- {{ $data['month'] }} Bar -->
+                    <div class="bar-group">
+                        <div class="bar" style="height: {{ ($data['accuracy'] / 100) * 200 }}px;" title="Akurasi {{ $data['accuracy'] }}%"></div>
+                        <div class="bar-label">{{ $data['month'] }}</div>
+                    </div>
+                @empty
+                    <div style="text-align: center; width: 100%; padding: 40px 0; color: #999;">
+                        <p>Belum ada data laporan</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -374,15 +370,15 @@
     <!-- Stats Grid -->
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-value">24</div>
+            <div class="stat-value">{{ $totalTasks }}</div>
             <div class="stat-label">Total Tugas</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">18</div>
+            <div class="stat-value">{{ $completedOnTime }}</div>
             <div class="stat-label">Selesai Tepat</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">6</div>
+            <div class="stat-value">{{ $completedLate }}</div>
             <div class="stat-label">Terlambat</div>
         </div>
     </div>

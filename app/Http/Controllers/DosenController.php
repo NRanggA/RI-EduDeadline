@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Task;
 use App\Models\TaskCompletion;
 use App\Models\Reminder;
+use App\Models\Report;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -259,9 +260,82 @@ class DosenController extends Controller
     }
 
 
-    public function laporan()
+    public function laporan(Request $request)
     {
-        return view('dosen.laporan');
+        $dosen = Auth::user();
+
+        // Get filter parameters
+        $period = $request->input('period', 'all');
+
+        // Determine date range based on filter
+        $now = now();
+        $startDate = match ($period) {
+            'bulan_ini' => $now->copy()->startOfMonth(),
+            'tiga_bulan' => $now->copy()->subMonths(3)->startOfMonth(),
+            'enam_bulan' => $now->copy()->subMonths(6)->startOfMonth(),
+            default => $now->copy()->subMonths(6)->startOfMonth(),
+        };
+
+        // Get overall reports for this lecturer
+        $overallReports = Report::where('lecturer_id', $dosen->id)
+            ->whereNull('course_id')
+            ->where('period_start', '>=', $startDate)
+            ->orderBy('period_end', 'desc')
+            ->get();
+
+        // Get course-specific reports
+        $courseReports = Report::where('lecturer_id', $dosen->id)
+            ->whereNotNull('course_id')
+            ->where('period_start', '>=', $startDate)
+            ->with('course')
+            ->orderBy('period_end', 'desc')
+            ->get();
+
+        // Calculate aggregated statistics
+        $totalTasks = $overallReports->sum('total_tasks');
+        $completedOnTime = $overallReports->sum('completed_on_time');
+        $completedLate = $overallReports->sum('completed_late');
+        $notSubmitted = $overallReports->sum('not_submitted');
+
+        // Calculate accuracy rate
+        $accuracyRate = $totalTasks > 0
+            ? round(($completedOnTime / $totalTasks) * 100, 2)
+            : 0;
+
+        // Get monthly data for chart
+        $monthlyData = Report::where('lecturer_id', $dosen->id)
+            ->whereNull('course_id')
+            ->where('period_start', '>=', $startDate)
+            ->orderBy('period_start', 'asc')
+            ->get()
+            ->map(function ($report) {
+                return [
+                    'month' => $report->period_start->format('M'),
+                    'accuracy' => $report->accuracy_rate,
+                    'completed_on_time' => $report->completed_on_time,
+                    'completed_late' => $report->completed_late,
+                ];
+            });
+
+        // Get breakdown data
+        $breakdown = [
+            'on_time_percentage' => $totalTasks > 0 ? round(($completedOnTime / $totalTasks) * 100, 1) : 0,
+            'late_percentage' => $totalTasks > 0 ? round(($completedLate / $totalTasks) * 100, 1) : 0,
+            'not_submitted_percentage' => $totalTasks > 0 ? round(($notSubmitted / $totalTasks) * 100, 1) : 0,
+        ];
+
+        return view('dosen.laporan', compact(
+            'overallReports',
+            'courseReports',
+            'totalTasks',
+            'completedOnTime',
+            'completedLate',
+            'notSubmitted',
+            'accuracyRate',
+            'monthlyData',
+            'breakdown',
+            'period'
+        ));
     }
 
     public function profile()
