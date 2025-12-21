@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title'); // Judul tugas
             $table->text('description')->nullable(); // Deskripsi lengkap
-            $table->unsignedBigInteger('course_id'); // Mata kuliah terkait
+            $table->unsignedBigInteger('course_id')->nullable(); // Mata kuliah terkait (nullable)
             $table->dateTime('deadline'); // Deadline tugas
             $table->enum('priority', ['rendah', 'normal', 'urgent'])->default('normal'); // Prioritas
             $table->string('attachment_path')->nullable(); // Path file attachment

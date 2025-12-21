@@ -25,8 +25,13 @@
                     <span>Mata Kuliah:</span>
                 </div>
                 <div class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    <span>{{ $task->course->icon ?? '📘' }}</span>
-                    {{ $task->course->name }}
+                    @if($task->course_id && $task->course)
+                        <span>{{ $task->course->icon ?? '📘' }}</span>
+                        {{ $task->course->name }}
+                    @else
+                        <span>📘</span>
+                        {{ $task->notes }}
+                    @endif
                 </div>
             </div>
             

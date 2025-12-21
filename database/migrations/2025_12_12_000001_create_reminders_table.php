@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('reminders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('course_id');
+            $table->unsignedBigInteger('course_id')->nullable(); // nullable
+            $table->string('course_name')->nullable(); // nama mata kuliah bebas
             $table->unsignedBigInteger('lecturer_id');
             $table->string('title');
             $table->text('message');

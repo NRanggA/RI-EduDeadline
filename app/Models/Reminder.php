@@ -12,7 +12,8 @@ class Reminder extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_id',
+        'course_id', // nullable
+        'course_name', // nullable
         'lecturer_id',
         'title',
         'message',

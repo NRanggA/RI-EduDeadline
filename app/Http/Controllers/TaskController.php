@@ -184,7 +184,7 @@ class TaskController extends Controller
     {
         // Validate input
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_name' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'deadline' => 'required|date',
@@ -193,16 +193,12 @@ class TaskController extends Controller
 
         $user = auth()->user();
 
-        // Check if user is enrolled in this course
-        if (!$user->courses->contains($validated['course_id'])) {
-            return redirect()->back()->with('error', 'Anda tidak terdaftar di mata kuliah ini');
-        }
-
-        // Create task
+        // Create task (tanpa relasi ke tabel courses, simpan nama mata kuliah langsung)
         $task = Task::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'course_id' => $validated['course_id'],
+            'course_id' => null, // Tidak pakai relasi
+            'notes' => $validated['course_name'], // Simpan nama mata kuliah di kolom notes
             'deadline' => $validated['deadline'],
             'priority' => $validated['priority'],
             'status' => 'pending',

@@ -246,20 +246,13 @@
         <form action="{{ route('dosen.reminder.send') }}" method="POST">
             @csrf
 
-            <!-- Section 1: Pilih Mata Kuliah dan Tugas -->
+            <!-- Section 1: Pilih Mata Kuliah (Input Bebas) -->
             <div class="reminder-card">
                 <label class="reminder-label">Pilih Mata Kuliah:</label>
                 <div class="input-group">
-                    <select name="course_id" class="input-field" required id="course_select">
-                        <option value="">-- Pilih Mata Kuliah --</option>
-                        @foreach($courses as $course)
-                            <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
-                                {{ $course->name }} ({{ $course->code }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <input type="text" name="course_name" class="input-field" placeholder="Masukkan nama mata kuliah" value="{{ old('course_name') }}" required>
                 </div>
-                @error('course_id')
+                @error('course_name')
                     <span style="color: #ff4757; font-size: 12px;">{{ $message }}</span>
                 @enderror
             </div>

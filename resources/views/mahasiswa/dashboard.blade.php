@@ -138,13 +138,8 @@
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Mata Kuliah</label>
-                <select name="course_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" required>
-                    <option value="">-- Pilih Mata Kuliah --</option>
-                    @foreach(Auth::user()->courses as $course)
-                    <option value="{{ $course->id }}">{{ $course->icon }} {{ $course->name }}</option>
-                    @endforeach
-                </select>
-                @error('course_id')
+                <input type="text" name="course_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" placeholder="Masukkan nama mata kuliah" required>
+                @error('course_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>

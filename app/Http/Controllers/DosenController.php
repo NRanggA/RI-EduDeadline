@@ -109,44 +109,33 @@ class DosenController extends Controller
         $dosen = Auth::user();
 
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_name' => 'required|string|max:255',
             'recipient_type' => 'required|in:semua_mahasiswa,belum_mengumpulkan,terlambat',
             'title' => 'required|string|max:255',
             'template_pesan' => 'required|string|max:1000',
             'waktu_pengingat' => 'nullable|date_format:Y-m-d H:i',
         ], [
-            'course_id.required' => 'Pilih mata kuliah',
+            'course_name.required' => 'Nama mata kuliah harus diisi',
             'recipient_type.required' => 'Pilih tipe penerima reminder',
             'title.required' => 'Judul reminder harus diisi',
             'template_pesan.required' => 'Template pesan harus diisi',
         ]);
 
-        $course = Course::findOrFail($validated['course_id']);
+        // Tidak ada relasi ke tabel courses, reminder dikirim ke semua mahasiswa (atau sesuai filter) tanpa filter course_id
+        $students = User::where('role', 'mahasiswa')->get();
 
-        // Verify that this lecturer owns this course
-        if ($course->lecturer_id !== $dosen->id) {
-            return back()->with('error', 'Anda tidak memiliki akses ke kursus ini');
-        }
-
-        // Determine which students should receive the reminder
-        $students = $this->getRecipientStudents(
-            $course->id,
-            $validated['recipient_type']
-        );
-
-        // Create reminder record
         $reminder = Reminder::create([
-            'course_id' => $course->id,
+            'course_id' => null,
+            'course_name' => $validated['course_name'],
             'lecturer_id' => $dosen->id,
             'title' => $validated['title'],
             'message' => $validated['template_pesan'],
-            'recipient_type' => $this->mapRecipientType($validated['recipient_type']),
+            'recipient_type' => $validated['recipient_type'],
             'scheduled_at' => $validated['waktu_pengingat'] ? Carbon::parse($validated['waktu_pengingat']) : now(),
             'is_sent' => true,
             'sent_at' => now(),
         ]);
 
-        // Attach recipients
         foreach ($students as $student) {
             $reminder->recipients()->attach($student->id);
         }
