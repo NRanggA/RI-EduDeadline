@@ -20,10 +20,17 @@
             box-sizing: border-box;
         }
         
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Container untuk responsiveness */
@@ -220,7 +227,7 @@
     @endauth
     
     <!-- Main Content -->
-    <main class="app-container py-8">
+    <main class="app-container @auth py-8 @endauth flex-1">
         <!-- Flash Messages -->
         @if($message = Session::get('success'))
         <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg flex items-center justify-between animate-fade-in">
@@ -256,9 +263,9 @@
     </main>
     
     <!-- Footer -->
-    <footer class="bg-white/10 backdrop-blur-lg mt-12 py-6 text-white text-center">
-        <p>&copy; 2024 EduDeadline - Facthur Rahman & Perdana Nauratsu Rangga W</p>
-        <p class="text-sm mt-2 opacity-80">Universitas Muhammadiyah Malang</p>
+    <footer class="w-full bg-white/10 backdrop-blur-lg mt-12 py-6 text-white text-center border-t border-white/20">
+        <p class="text-sm">&copy; 2024 EduDeadline - Facthur Rahman & Perdana Nauratsu Rangga W</p>
+        <p class="text-xs mt-2 opacity-80">Universitas Muhammadiyah Malang</p>
     </footer>
     
     <!-- Scripts -->

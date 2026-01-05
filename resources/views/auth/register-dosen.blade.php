@@ -4,14 +4,6 @@
 
 @section('styles')
 <style>
-    body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
     .register-card {
         background: white;
         border-radius: 24px;

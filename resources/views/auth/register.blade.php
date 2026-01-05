@@ -1,16 +1,9 @@
-
 @extends('layouts.app')
 
 @section('title', 'Register')
 
 @section('styles')
 <style>
-    body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-    }
     .register-card {
         background: white;
         border-radius: 24px;
