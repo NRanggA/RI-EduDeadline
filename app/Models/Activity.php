@@ -22,8 +22,6 @@ class Activity extends Model
 
     protected $casts = [
         'date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -72,10 +70,11 @@ class Activity extends Model
      */
     private function timeOverlaps(Activity $other): bool
     {
-        $start1 = strtotime($this->start_time);
-        $end1 = strtotime($this->end_time);
-        $start2 = strtotime($other->start_time);
-        $end2 = strtotime($other->end_time);
+        // Compare time strings directly (H:i format)
+        $start1 = $this->start_time;
+        $end1 = $this->end_time;
+        $start2 = $other->start_time;
+        $end2 = $other->end_time;
 
         return $start1 < $end2 && $start2 < $end1;
     }

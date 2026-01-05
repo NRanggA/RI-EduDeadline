@@ -10,6 +10,9 @@ use App\Models\TaskCompletion;
 use App\Models\Reminder;
 use App\Models\Report;
 use App\Models\User;
+use App\Models\Thesis;
+use App\Models\ThesisSubmission;
+use App\Models\ThesisFeedback;
 use Carbon\Carbon;
 
 class DosenController extends Controller
@@ -36,12 +39,74 @@ class DosenController extends Controller
             ->orderBy('deadline', 'asc')
             ->get();
 
+        // Get all thesis where this lecturer is advisor (pembimbing)
+        $advisedTheses = Thesis::where('advisor_id', $dosen->id)
+            ->orWhere('co_advisor_id', $dosen->id)
+            ->with(['student', 'submissions', 'advisor', 'coAdvisor'])
+            ->orderBy('defense_deadline', 'asc')
+            ->get();
+
+        // Get thesis submissions and feedback data
+        $thesisData = [];
+        foreach ($advisedTheses as $thesis) {
+            // Get latest submissions for each chapter
+            $latestSubmissions = $thesis->submissions()
+                ->selectRaw('chapter, MAX(version) as max_version')
+                ->groupBy('chapter')
+                ->get();
+
+            $submissions = [];
+            foreach ($latestSubmissions as $latest) {
+                $submission = $thesis->submissions()
+                    ->where('chapter', $latest->chapter)
+                    ->where('version', $latest->max_version)
+                    ->first();
+
+                if ($submission) {
+                    $feedbackCount = ThesisFeedback::where('thesis_submission_id', $submission->id)
+                        ->where('is_resolved', 0)
+                        ->count();
+
+                    $submissions[] = [
+                        'id' => $submission->id,
+                        'chapter' => $submission->chapter,
+                        'title' => $submission->title,
+                        'status' => $submission->status,
+                        'version' => $submission->version,
+                        'created_at' => $submission->created_at,
+                        'unresolved_feedback' => $feedbackCount,
+                    ];
+                }
+            }
+
+            // Count unresolved feedback
+            $totalUnresolvedFeedback = ThesisFeedback::whereIn(
+                'thesis_submission_id',
+                $thesis->submissions()->pluck('id')
+            )
+                ->where('is_resolved', 0)
+                ->count();
+
+            $thesisData[] = [
+                'thesis' => $thesis,
+                'student_name' => $thesis->student->name,
+                'submissions' => $submissions,
+                'submitted_chapters' => count($submissions),
+                'total_chapters' => 5,
+                'unresolved_feedback' => $totalUnresolvedFeedback,
+                'defense_deadline' => $thesis->defense_deadline,
+                'days_until_defense' => $thesis->defense_deadline ? now()->diffInDays($thesis->defense_deadline, false) : null,
+            ];
+        }
+
         // Calculate statistics
         $statistics = [
             'total_courses' => $courses->count(),
             'total_tasks' => $tasks->count(),
             'pending_tasks' => $tasks->filter(fn($t) => $t->status === 'pending')->count(),
             'overdue_tasks' => $tasks->filter(fn($t) => $t->status === 'overdue')->count(),
+            'total_students' => $advisedTheses->count(),
+            'pending_defense' => $advisedTheses->filter(fn($t) => $t->status !== 'completed')->count(),
         ];
 
         // Get task completion statistics
@@ -60,7 +125,95 @@ class DosenController extends Controller
             ];
         }
 
-        return view('dosen.dashboard', compact('courses', 'tasks', 'statistics', 'task_stats'));
+        return view('dosen.dashboard', compact('courses', 'tasks', 'statistics', 'task_stats', 'thesisData'));
+    }
+
+    /**
+     * Monitoring Skripsi Mahasiswa
+     */
+    public function monitoringSkripsi()
+    {
+        $dosen = Auth::user();
+
+        // Get all thesis where this lecturer is advisor (pembimbing)
+        $advisedTheses = Thesis::where('advisor_id', $dosen->id)
+            ->orWhere('co_advisor_id', $dosen->id)
+            ->with(['student', 'submissions', 'advisor', 'coAdvisor'])
+            ->orderBy('defense_deadline', 'asc')
+            ->get();
+
+        // Get thesis submissions and feedback data with detailed info
+        $thesisMonitoring = [];
+        foreach ($advisedTheses as $thesis) {
+            // Get latest submissions for each chapter
+            $latestSubmissions = $thesis->submissions()
+                ->selectRaw('chapter, MAX(version) as max_version')
+                ->groupBy('chapter')
+                ->get();
+
+            $submissions = [];
+            foreach ($latestSubmissions as $latest) {
+                $submission = $thesis->submissions()
+                    ->where('chapter', $latest->chapter)
+                    ->where('version', $latest->max_version)
+                    ->first();
+
+                if ($submission) {
+                    $feedbacks = ThesisFeedback::where('thesis_submission_id', $submission->id)
+                        ->with('advisor')
+                        ->get();
+
+                    $submissions[] = [
+                        'id' => $submission->id,
+                        'chapter' => $submission->chapter,
+                        'title' => $submission->title,
+                        'status' => $submission->status,
+                        'version' => $submission->version,
+                        'created_at' => $submission->created_at,
+                        'total_feedback' => $feedbacks->count(),
+                        'unresolved_feedback' => $feedbacks->where('is_resolved', 0)->count(),
+                        'feedbacks' => $feedbacks,
+                    ];
+                }
+            }
+
+            // Count all feedback
+            $allFeedbacks = ThesisFeedback::whereIn(
+                'thesis_submission_id',
+                $thesis->submissions()->pluck('id')
+            )->get();
+
+            $totalUnresolvedFeedback = $allFeedbacks->where('is_resolved', 0)->count();
+            $totalFeedback = $allFeedbacks->count();
+
+            $thesisMonitoring[] = [
+                'id' => $thesis->id,
+                'thesis' => $thesis,
+                'student_name' => $thesis->student->name,
+                'student_nim' => $thesis->student->nim,
+                'submissions' => $submissions,
+                'submitted_chapters' => count($submissions),
+                'total_chapters' => 5,
+                'progress_percentage' => (count($submissions) / 5) * 100,
+                'total_feedback' => $totalFeedback,
+                'unresolved_feedback' => $totalUnresolvedFeedback,
+                'defense_deadline' => $thesis->defense_deadline,
+                'days_until_defense' => $thesis->defense_deadline ? now()->diffInDays($thesis->defense_deadline, false) : null,
+                'status' => $thesis->status,
+                'advisor_role' => $thesis->advisor_id === $dosen->id ? 'Pembimbing Utama' : 'Pembimbing Kedua',
+            ];
+        }
+
+        // Calculate statistics
+        $statistics = [
+            'total_students' => count($thesisMonitoring),
+            'completed_defense' => collect($thesisMonitoring)->where('status', 'completed')->count(),
+            'pending_defense' => collect($thesisMonitoring)->where('status', '!=', 'completed')->count(),
+            'total_feedback_pending' => collect($thesisMonitoring)->sum('unresolved_feedback'),
+            'overdue_defense' => collect($thesisMonitoring)->filter(fn($t) => $t['days_until_defense'] !== null && $t['days_until_defense'] < 0)->count(),
+        ];
+
+        return view('dosen.monitoring-skripsi', compact('thesisMonitoring', 'statistics'));
     }
 
     public function reminder()

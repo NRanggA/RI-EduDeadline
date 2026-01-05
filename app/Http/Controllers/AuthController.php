@@ -12,6 +12,10 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
+            // Redirect berdasarkan role jika sudah login
+            if (Auth::user()->role === 'dosen') {
+                return redirect()->route('dosen.dashboard');
+            }
             return redirect()->route('mahasiswa.dashboard');
         }
 

@@ -4,13 +4,33 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto">
-    <h1 class="text-3xl font-bold text-white mb-8">📚 Tugas per Mata Kuliah</h1>
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold text-white">📚 Tugas per Mata Kuliah</h1>
+        
+        <!-- Filter Mata Kuliah -->
+        @if(count($courses) > 0)
+        <div class="relative">
+            <select id="courseFilter" onchange="filterCourse(this.value)" 
+                    class="appearance-none bg-white text-gray-800 px-4 py-2 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:border-purple-500 transition cursor-pointer font-medium">
+                <option value="">Semua Mata Kuliah</option>
+                @foreach($courses as $course)
+                <option value="{{ $course->id }}">{{ $course->code }} - {{ $course->name }}</option>
+                @endforeach
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </div>
+        </div>
+        @endif
+    </div>
     
     <!-- HMW 4 - PROXIMITY: Jarak besar antar grup, kecil dalam grup -->
-    <div class="space-y-8"> <!-- 32px spacing antar grup -->
+    <div class="space-y-8" id="coursesContainer"> <!-- 32px spacing antar grup -->
         
         @forelse($courses as $course)
-        <div class="card-modern p-6 mk-card"> <!-- mk-card = margin-bottom: 28px -->
+        <div class="card-modern p-6 mk-card course-card" data-course-id="{{ $course->id }}"> <!-- mk-card = margin-bottom: 28px -->
             <!-- Header Mata Kuliah -->
             <div class="flex items-center gap-3 mb-4 pb-4 border-b-2 border-gray-100">
                 <span class="text-3xl">{{ $course->icon }}</span>
@@ -110,4 +130,56 @@
     </div>
     @endif
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function filterCourse(courseId) {
+    const courseCards = document.querySelectorAll('.course-card');
+    const emptyState = document.querySelector('[data-empty-state]');
+    
+    if (!courseId) {
+        // Tampilkan semua
+        courseCards.forEach(card => {
+            card.style.display = '';
+            card.classList.add('animate-fadeIn');
+        });
+        if (emptyState) emptyState.style.display = 'none';
+    } else {
+        // Filter berdasarkan course_id
+        let hasVisible = false;
+        courseCards.forEach(card => {
+            if (card.dataset.courseId === courseId) {
+                card.style.display = '';
+                card.classList.add('animate-fadeIn');
+                hasVisible = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Tampilkan pesan kosong jika tidak ada yang cocok
+        if (emptyState) {
+            emptyState.style.display = hasVisible ? 'none' : '';
+        }
+    }
+}
+</script>
+
+<style>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+}
+</style>
 @endsection

@@ -155,8 +155,8 @@
             <div class="stat-label">Total Tugas</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">{{ $statistics['overdue_tasks'] }}</div>
-            <div class="stat-label">Overdue</div>
+            <div class="stat-number">{{ $statistics['pending_defense'] }}</div>
+            <div class="stat-label">Skripsi Pending</div>
         </div>
     </div>
 
@@ -239,10 +239,94 @@
     @endif
 
     <!-- Quick Action Button -->
-    <div style="margin-top: 24px; margin-bottom: 40px;">
+    <div style="margin-top: 24px; margin-bottom: 40px; display: flex; gap: 12px; flex-wrap: wrap;">
         <a href="{{ route('dosen.reminder') }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.2s;">
             ➜ Atur Reminder
         </a>
+        <a href="{{ route('dosen.monitoring-skripsi') }}" style="display: inline-block; background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.2s;">
+            📚 Monitoring Skripsi
+        </a>
     </div>
+
+    <!-- Thesis Section -->
+    @if(!empty($thesisData) && count($thesisData) > 0)
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #f0f0f0;">
+        <h2 style="font-size: 22px; font-weight: 700; color: #333; margin-bottom: 20px;">📚 Pembimbingan Skripsi</h2>
+        
+        @forelse($thesisData as $data)
+        <div class="task-card" style="border-left: 4px solid {{ $data['unresolved_feedback'] > 0 ? '#ff6b6b' : '#2ed573' }};">
+            <!-- Header -->
+            <div class="task-header">
+                <div class="task-title">{{ $data['thesis']->title }}</div>
+                <div class="task-deadline">
+                    Mahasiswa: <strong>{{ $data['student_name'] }}</strong> | 
+                    Deadline Sidang: <strong>{{ $data['defense_deadline'] ? $data['defense_deadline']->format('d M Y') : 'Belum dijadwalkan' }}</strong>
+                </div>
+            </div>
+
+            <!-- Chapter Progress -->
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #666;">Progress Bab</span>
+                    <span style="font-size: 13px; font-weight: 600; color: #667eea;">{{ $data['submitted_chapters'] }}/{{ $data['total_chapters'] }} Bab</span>
+                </div>
+                <div style="background: #f0f0f0; border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: {{ ($data['submitted_chapters'] / $data['total_chapters']) * 100 }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Feedback Alert -->
+            @if($data['unresolved_feedback'] > 0)
+            <div style="background: #fff5f5; border: 1px solid #ffdddd; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: #ff6b6b;">
+                    <span style="font-size: 14px;">⚠️</span>
+                    <span style="font-size: 13px; font-weight: 600;">{{ $data['unresolved_feedback'] }} Feedback Belum Direspon</span>
+                </div>
+            </div>
+            @endif
+
+            <!-- Chapter Submissions -->
+            <div style="background: #f9f9f9; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <div style="font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px;">📄 Pengumpulan Bab:</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
+                    @forelse($data['submissions'] as $submission)
+                    <div style="background: white; border: 1px solid #e8e8e8; border-radius: 6px; padding: 10px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">{{ $submission['chapter'] }}</div>
+                        @if($submission['status'] === 'approved')
+                            <span style="display: inline-block; background: #d4f4dd; color: #2ed573; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">✓ Disetujui</span>
+                        @elseif($submission['status'] === 'rejected')
+                            <span style="display: inline-block; background: #ffd6d6; color: #ff4757; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">✕ Revisi</span>
+                        @else
+                            <span style="display: inline-block; background: #fff4d6; color: #ffa502; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">⏱ Review</span>
+                        @endif
+                        @if($submission['unresolved_feedback'] > 0)
+                        <div style="font-size: 10px; color: #ff6b6b; margin-top: 4px; font-weight: 600;">{{ $submission['unresolved_feedback'] }} feedback</div>
+                        @endif
+                    </div>
+                    @empty
+                    <div style="grid-column: 1/-1; padding: 16px; text-align: center; color: #999; font-size: 12px;">
+                        Belum ada pengumpulan bab
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="display: flex; gap: 8px;">
+                <a href="{{ route('mahasiswa.feedback') }}" style="flex: 1; background: #667eea; color: white; padding: 10px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.2s;">
+                    💬 Lihat Feedback
+                </a>
+                <a href="{{ route('mahasiswa.schedule') }}" style="flex: 1; background: #764ba2; color: white; padding: 10px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.2s;">
+                    📅 Jadwal Sidang
+                </a>
+            </div>
+        </div>
+        @empty
+        <div style="background: #f9f9f9; border-radius: 8px; padding: 24px; text-align: center; color: #999;">
+            <p style="font-size: 14px;">Anda belum membimbing mahasiswa apapun</p>
+        </div>
+        @endforelse
+    </div>
+    @endif
 </div>
 @endsection

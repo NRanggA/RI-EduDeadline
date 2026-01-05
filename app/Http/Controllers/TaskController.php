@@ -34,8 +34,8 @@ class TaskController extends Controller
         $task = Task::findOrFail($id);
         $user = auth()->user();
 
-        // Check if user is enrolled in this course
-        if (!$user->courses->contains($task->course_id)) {
+        // Check if user is enrolled in this course (jika course_id tidak null)
+        if ($task->course_id !== null && !$user->courses->contains($task->course_id)) {
             abort(403, 'Unauthorized');
         }
 
@@ -62,8 +62,8 @@ class TaskController extends Controller
         $task = Task::findOrFail($id);
         $user = auth()->user();
 
-        // Check if user is enrolled in this course
-        if (!$user->courses->contains($task->course_id)) {
+        // Check if user is enrolled in this course (jika course_id tidak null)
+        if ($task->course_id !== null && !$user->courses->contains($task->course_id)) {
             abort(403, 'Unauthorized');
         }
 

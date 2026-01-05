@@ -70,6 +70,31 @@ class Thesis extends Model
     }
 
     /**
+     * Get all feedback for this thesis's submissions
+     */
+    public function feedbacks()
+    {
+        return ThesisFeedback::whereIn(
+            'thesis_submission_id',
+            $this->submissions()->pluck('id')
+        )
+            ->get();
+    }
+
+    /**
+     * Get unresolved feedback count for this thesis
+     */
+    public function getUnresolvedFeedbackCount()
+    {
+        return ThesisFeedback::whereIn(
+            'thesis_submission_id',
+            $this->submissions()->pluck('id')
+        )
+            ->where('is_resolved', 0)
+            ->count();
+    }
+
+    /**
      * Get the latest approved submission for each chapter
      */
     public function getLatestChapterSubmissions()

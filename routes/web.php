@@ -35,7 +35,7 @@ Route::prefix('dosen')->group(function () {
 | Mahasiswa Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
+Route::middleware(['auth', 'check.role:mahasiswa'])->prefix('mahasiswa')->group(function () {
     // Screen 2: Dashboard (HMW 1 - Emphasis)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('mahasiswa.dashboard');
 
@@ -55,7 +55,7 @@ Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
     Route::get('/calendar', [CalendarController::class, 'index'])->name('mahasiswa.calendar');
     Route::post('/event', [CalendarController::class, 'storeEvent'])->name('mahasiswa.event.store');
     Route::post('/activity', [ActivityController::class, 'store'])->name('mahasiswa.activity.store');
-    Route::post('/activity/force', [ActivityController::class, 'store'])->name('mahasiswa.activity.store.force');
+    Route::post('/activity/force', [ActivityController::class, 'storeForceSave'])->name('mahasiswa.activity.store.force');
     Route::get('/tambah-event', [CalendarController::class, 'create'])->name('mahasiswa.tambah-event');
     Route::post('/tambah-event', [CalendarController::class, 'store'])->name('mahasiswa.tambah-event.store');
 
@@ -85,13 +85,16 @@ Route::middleware(['auth'])->prefix('mahasiswa')->group(function () {
 | Dosen Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->prefix('dosen')->group(function () {
+Route::middleware(['auth', 'check.role:dosen'])->prefix('dosen')->group(function () {
     // Screen 9: Dashboard Dosen (HMW 2 - Contrast)
     Route::get('/dashboard', [DosenController::class, 'index'])->name('dosen.dashboard');
 
     // Screen 10: Setup Reminder
     Route::get('/reminder', [DosenController::class, 'reminder'])->name('dosen.reminder');
     Route::post('/reminder', [DosenController::class, 'sendReminder'])->name('dosen.reminder.send');
+
+    // Monitoring Skripsi
+    Route::get('/monitoring-skripsi', [DosenController::class, 'monitoringSkripsi'])->name('dosen.monitoring-skripsi');
 
     // Screen 11: Laporan
     Route::get('/laporan', [DosenController::class, 'laporan'])->name('dosen.laporan');

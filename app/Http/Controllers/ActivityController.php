@@ -69,6 +69,39 @@ class ActivityController extends Controller
     }
 
     /**
+     * Force store activity despite conflicts
+     */
+    public function storeForceSave(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|in:Kuliah,Event Organisasi',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'description' => 'nullable|string',
+        ]);
+
+        // Save activity without checking conflicts
+        Activity::create([
+            'user_id' => $user->id,
+            'name' => $validated['name'],
+            'category' => $validated['category'],
+            'date' => $validated['date'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        return redirect()->route('mahasiswa.calendar', [
+            'year' => Carbon::parse($validated['date'])->year,
+            'month' => Carbon::parse($validated['date'])->month,
+        ])->with('success', 'Kegiatan berhasil ditambahkan meskipun ada bentrok!');
+    }
+
+    /**
      * Get activities for a specific date
      */
     public function getByDate(Request $request)
